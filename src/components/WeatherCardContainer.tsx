@@ -372,12 +372,7 @@ const WeatherCardContainer: React.FC<WeatherCardContainerProps> = ({
   // 现在我们总是有数据，要么从API，要么从缓存，要么是模拟数据
   return (
     <div className="relative w-full h-full">
-      {/* 如果使用的是模拟数据，显示一个提示标签 */}
-      {usingMockData && (
-        <div className="absolute top-0 left-0 bg-yellow-500 text-xs text-black px-2 py-1 rounded-br z-10">
-          模拟数据
-        </div>
-      )}
+      {/* 删除模拟数据标签显示 */}
       
       {/* 如果有错误但不是使用模拟数据，显示错误信息 */}
       {error && !usingMockData && (
