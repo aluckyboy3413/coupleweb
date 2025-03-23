@@ -36,6 +36,76 @@ interface GeoLocation {
   lon: string;
 }
 
+// 模拟数据 - 阿加迪尔（摩洛哥）温暖气候
+const mockDataAgadir = {
+  weather: {
+    temp: '24',
+    text: 'Sunny',
+    windDir: 'NE',
+    windScale: '3',
+    humidity: '68',
+    icon: '100'
+  },
+  forecast: [
+    {
+      fxDate: new Date(Date.now() + 86400000).toISOString().split('T')[0],
+      tempMax: '25',
+      tempMin: '19',
+      textDay: 'Sunny',
+      iconDay: '100'
+    },
+    {
+      fxDate: new Date(Date.now() + 86400000 * 2).toISOString().split('T')[0],
+      tempMax: '26',
+      tempMin: '18',
+      textDay: 'Cloudy',
+      iconDay: '101'
+    },
+    {
+      fxDate: new Date(Date.now() + 86400000 * 3).toISOString().split('T')[0],
+      tempMax: '24',
+      tempMin: '17',
+      textDay: 'Partly Cloudy',
+      iconDay: '103'
+    }
+  ]
+};
+
+// 模拟数据 - 贵港（中国）凉爽气候
+const mockDataGuigang = {
+  weather: {
+    temp: '18',
+    text: 'Partly Cloudy',
+    windDir: 'SE',
+    windScale: '2',
+    humidity: '75',
+    icon: '103'
+  },
+  forecast: [
+    {
+      fxDate: new Date(Date.now() + 86400000).toISOString().split('T')[0],
+      tempMax: '20',
+      tempMin: '14',
+      textDay: 'Cloudy',
+      iconDay: '101'
+    },
+    {
+      fxDate: new Date(Date.now() + 86400000 * 2).toISOString().split('T')[0],
+      tempMax: '22',
+      tempMin: '15',
+      textDay: 'Sunny',
+      iconDay: '100'
+    },
+    {
+      fxDate: new Date(Date.now() + 86400000 * 3).toISOString().split('T')[0],
+      tempMax: '19',
+      tempMin: '13',
+      textDay: 'Light Rain',
+      iconDay: '305'
+    }
+  ]
+};
+
 const WeatherCardContainer: React.FC<WeatherCardContainerProps> = ({
   locationId,
   cityName,
@@ -50,6 +120,16 @@ const WeatherCardContainer: React.FC<WeatherCardContainerProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [currentDate, setCurrentDate] = useState('');
   const [cityId, setCityId] = useState<string | null>(null);
+  const [usingMockData, setUsingMockData] = useState(false);
+  
+  // 根据城市名选择使用哪个模拟数据
+  const getMockData = () => {
+    if (cityName === 'Agadir') return mockDataAgadir;
+    if (cityName === 'Guigang') return mockDataGuigang;
+    
+    // 默认返回阿加迪尔数据
+    return mockDataAgadir;
+  };
   
   // 获取城市ID
   useEffect(() => {
@@ -86,7 +166,7 @@ const WeatherCardContainer: React.FC<WeatherCardContainerProps> = ({
           
           // 如果有多个结果，尝试找到确切匹配国家和城市名的
           if (data.location.length > 1) {
-            const exactMatch = data.location.find(loc => 
+            const exactMatch = data.location.find((loc: GeoLocation) => 
               loc.country.toLowerCase() === country.toLowerCase() && 
               loc.name.toLowerCase() === cityName.toLowerCase()
             );
@@ -128,6 +208,7 @@ const WeatherCardContainer: React.FC<WeatherCardContainerProps> = ({
     const checkAndFetchWeatherData = async () => {
       setLoading(true);
       setError(null);
+      setUsingMockData(false);
       
       const storageKey = `weather_${cityId}`;
       const forecastKey = `forecast_${cityId}`;
@@ -154,53 +235,83 @@ const WeatherCardContainer: React.FC<WeatherCardContainerProps> = ({
         // 调试信息：获取位置信息
         console.log(`正在获取天气数据，地点: ${cityId}, 城市: ${cityName}`);
         
-        // 缓存不存在或已过期，从API获取新数据
-        // 设置超时以避免长时间等待
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 5000); // 5秒超时
+        // 尝试从API获取数据
+        const fetchData = async () => {
+          // 设置超时以避免长时间等待
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 5000); // 5秒超时
+          
+          try {
+            const response = await fetch(`/api/weather?location=${encodeURIComponent(cityId)}&lang=en`, {
+              signal: controller.signal
+            });
+            
+            clearTimeout(timeoutId);
+            
+            // API总是返回200状态码，但可能在响应体中包含错误信息
+            const data = await response.json();
+            console.log(`天气API响应 (${cityId}):`, data);
+            
+            if (data.error) {
+              // API返回错误信息
+              throw new Error(`API responded with status: ${data.error}${data.message ? ': ' + data.message : ''}`);
+            }
+            
+            if (data.now) {
+              // 成功获取天气数据
+              setWeather(data.now);
+              localStorage.setItem(storageKey, JSON.stringify(data.now));
+              
+              if (data.forecast && data.forecast.length > 0) {
+                const forecastData = data.forecast.slice(0, 3);
+                setForecast(forecastData);
+                localStorage.setItem(forecastKey, JSON.stringify(forecastData));
+              }
+              
+              // 记录数据获取时间
+              localStorage.setItem(timestampKey, currentTime.toString());
+              return true;
+            } else {
+              // API响应格式不正确
+              throw new Error('API返回的数据格式不正确');
+            }
+          } catch (fetchError: unknown) {
+            clearTimeout(timeoutId);
+            if (fetchError instanceof Error) {
+              if (fetchError.name === 'AbortError') {
+                throw new Error('请求超时');
+              }
+              throw fetchError;
+            }
+            throw new Error('未知的API请求错误');
+          }
+        };
         
+        // 尝试从API获取数据，如果失败则使用模拟数据
         try {
-          const response = await fetch(`/api/weather?location=${encodeURIComponent(cityId)}&lang=en`, {
-            signal: controller.signal
-          });
+          const success = await fetchData();
+          if (!success) throw new Error('API未返回有效数据');
+        } catch (apiError) {
+          console.error(`API请求失败 (${cityId}):`, apiError);
           
-          clearTimeout(timeoutId);
+          // 尝试使用缓存数据（即使已过期）
+          const cachedWeather = localStorage.getItem(storageKey);
+          const cachedForecast = localStorage.getItem(forecastKey);
           
-          // API总是返回200状态码，但可能在响应体中包含错误信息
-          const data = await response.json();
-          console.log(`天气API响应 (${cityId}):`, data);
-          
-          if (data.error) {
-            // API返回错误信息
-            throw new Error(`API responded with status: ${data.error}${data.message ? ': ' + data.message : ''}`);
-          }
-          
-          if (data.now) {
-            // 成功获取天气数据
-            setWeather(data.now);
-            localStorage.setItem(storageKey, JSON.stringify(data.now));
-            
-            if (data.forecast && data.forecast.length > 0) {
-              const forecastData = data.forecast.slice(0, 3);
-              setForecast(forecastData);
-              localStorage.setItem(forecastKey, JSON.stringify(forecastData));
-            }
-            
-            // 记录数据获取时间
-            localStorage.setItem(timestampKey, currentTime.toString());
+          if (cachedWeather && cachedForecast) {
+            setWeather(JSON.parse(cachedWeather));
+            setForecast(JSON.parse(cachedForecast));
+            setError('使用过期的缓存数据 (API请求失败)');
+            console.warn(`由于API错误，使用过期的缓存数据: ${cityId}`);
           } else {
-            // API响应格式不正确
-            throw new Error('API返回的数据格式不正确');
+            // 没有缓存数据，使用模拟数据
+            console.warn(`没有可用的缓存数据，使用模拟数据: ${cityName}`);
+            const mockData = getMockData();
+            setWeather(mockData.weather);
+            setForecast(mockData.forecast);
+            setUsingMockData(true);
+            setError('使用模拟数据 (API请求失败)');
           }
-        } catch (fetchError: unknown) {
-          clearTimeout(timeoutId);
-          if (fetchError instanceof Error) {
-            if (fetchError.name === 'AbortError') {
-              throw new Error('请求超时');
-            }
-            throw fetchError;
-          }
-          throw new Error('未知的API请求错误');
         }
       } catch (err: unknown) {
         console.error(`获取天气数据时出错 (${cityId}):`, err);
@@ -215,7 +326,13 @@ const WeatherCardContainer: React.FC<WeatherCardContainerProps> = ({
           setError('使用过期的缓存数据 (API请求失败)');
           console.warn(`由于API错误，使用过期的缓存数据: ${cityId}`);
         } else {
-          setError(err instanceof Error ? err.message : '无法获取天气数据');
+          // 没有缓存数据，使用模拟数据
+          console.warn(`没有可用的缓存数据，使用模拟数据: ${cityName}`);
+          const mockData = getMockData();
+          setWeather(mockData.weather);
+          setForecast(mockData.forecast);
+          setUsingMockData(true);
+          setError('使用模拟数据 (API请求失败)');
         }
       } finally {
         setLoading(false);
@@ -237,34 +354,38 @@ const WeatherCardContainer: React.FC<WeatherCardContainerProps> = ({
     );
   }
 
-  if (error && !weather) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <div className="text-white text-xl">
-          <p>API responded with status: 500</p>
-          <p>City ID: {cityId || locationId}</p>
-          <p className="text-xs mt-2 opacity-80">{error}</p>
-        </div>
-      </div>
-    );
-  }
-
-  // 即使有错误，只要有天气数据（来自缓存），也展示卡片
+  // 现在我们总是有数据，要么从API，要么从缓存，要么是模拟数据
   return (
-    <WeatherCard
-      city={cityName}
-      country={country}
-      date={currentDate}
-      temperature={weather?.temp || '23'}
-      weatherText={weather?.text || 'Sunny'}
-      humidity={weather?.humidity ? `${weather.humidity}%` : '50%'}
-      windDir={weather?.windDir || 'N'}
-      windScale={weather?.windScale || '3'}
-      colorTheme={colorTheme}
-      personName={personName}
-      forecast={forecast}
-      timezone={timezone}
-    />
+    <div className="relative w-full h-full">
+      {/* 如果使用的是模拟数据，显示一个提示标签 */}
+      {usingMockData && (
+        <div className="absolute top-0 left-0 bg-yellow-500 text-xs text-black px-2 py-1 rounded-br z-10">
+          模拟数据
+        </div>
+      )}
+      
+      {/* 如果有错误但不是使用模拟数据，显示错误信息 */}
+      {error && !usingMockData && (
+        <div className="absolute top-0 right-0 bg-red-600 text-xs text-white px-2 py-1 rounded-bl z-10">
+          {error}
+        </div>
+      )}
+      
+      <WeatherCard
+        city={cityName}
+        country={country}
+        date={currentDate}
+        temperature={weather?.temp || '23'}
+        weatherText={weather?.text || 'Sunny'}
+        humidity={weather?.humidity ? `${weather.humidity}%` : '50%'}
+        windDir={weather?.windDir || 'N'}
+        windScale={weather?.windScale || '3'}
+        colorTheme={colorTheme}
+        personName={personName}
+        forecast={forecast}
+        timezone={timezone}
+      />
+    </div>
   );
 };
 
