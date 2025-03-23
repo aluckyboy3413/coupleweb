@@ -29,6 +29,9 @@ export default function Home() {
   
   // 滑动动画效果
   useEffect(() => {
+    // 确保代码只在客户端执行
+    if (typeof window === 'undefined') return;
+    
     // 等待DOM完全加载
     const handleAnimation = () => {
       // 添加延迟效果使各个元素依次进入
@@ -60,6 +63,9 @@ export default function Home() {
   
   // 鼠标跟踪效果用于视差
   useEffect(() => {
+    // 确保代码只在客户端执行
+    if (typeof window === 'undefined') return;
+    
     const handleMouseMove = (e: MouseEvent) => {
       // 计算相对于窗口中心的偏移量 (-1 到 1 之间)
       setMousePosition({
@@ -77,6 +83,9 @@ export default function Home() {
   
   // 点击效果
   useEffect(() => {
+    // 确保代码只在客户端执行
+    if (typeof window === 'undefined') return;
+
     const handleClick = (e: MouseEvent) => {
       const newParticles: Particle[] = [];
       const particleCount = 12; // 产生的心形粒子数量
