@@ -54,8 +54,16 @@ const WeatherCardContainer: React.FC<WeatherCardContainerProps> = ({
   // 获取城市ID
   useEffect(() => {
     const fetchCityId = async () => {
-      // 如果已经是城市ID格式 (CN开头的城市代码)，直接使用
-      if (locationId.startsWith('CN') && locationId.length > 2) {
+      // 如果已经是城市ID格式 (以字母开头跟数字的城市代码)，直接使用
+      if (typeof locationId === 'string' && /^[A-Z\d]+\d+$/.test(locationId)) {
+        console.log(`检测到标准城市ID格式: ${locationId}，直接使用`);
+        setCityId(locationId);
+        return;
+      }
+      
+      // 如果是经纬度格式，直接用于天气查询而不尝试转换为城市ID
+      if (typeof locationId === 'string' && locationId.includes(',')) {
+        console.log(`检测到经纬度格式: ${locationId}，直接用于天气查询`);
         setCityId(locationId);
         return;
       }
@@ -73,9 +81,24 @@ const WeatherCardContainer: React.FC<WeatherCardContainerProps> = ({
         console.log('城市查询结果:', data);
         
         if (data.code === '200' && data.location && data.location.length > 0) {
-          const city = data.location[0];
-          console.log(`找到城市 ${city.name}，ID: ${city.id}`);
-          setCityId(city.id);
+          // 尝试查找最匹配的城市
+          let bestMatch = data.location[0];
+          
+          // 如果有多个结果，尝试找到确切匹配国家和城市名的
+          if (data.location.length > 1) {
+            const exactMatch = data.location.find(loc => 
+              loc.country.toLowerCase() === country.toLowerCase() && 
+              loc.name.toLowerCase() === cityName.toLowerCase()
+            );
+            
+            if (exactMatch) {
+              bestMatch = exactMatch;
+              console.log(`找到完全匹配的城市: ${bestMatch.name}, ${bestMatch.country}`);
+            }
+          }
+          
+          console.log(`使用城市 ${bestMatch.name}，ID: ${bestMatch.id}`);
+          setCityId(bestMatch.id);
         } else {
           // 如果查询失败，继续使用原始locationId
           console.warn(`未找到城市 ${cityName} 的ID，将继续使用原始ID: ${locationId}`);
@@ -89,7 +112,7 @@ const WeatherCardContainer: React.FC<WeatherCardContainerProps> = ({
     };
     
     fetchCityId();
-  }, [locationId, cityName]);
+  }, [locationId, cityName, country]);
   
   // 获取天气数据
   useEffect(() => {
@@ -220,6 +243,7 @@ const WeatherCardContainer: React.FC<WeatherCardContainerProps> = ({
         <div className="text-white text-xl">
           <p>API responded with status: 500</p>
           <p>City ID: {cityId || locationId}</p>
+          <p className="text-xs mt-2 opacity-80">{error}</p>
         </div>
       </div>
     );

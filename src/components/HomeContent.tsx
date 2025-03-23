@@ -180,7 +180,7 @@ export default function HomeContent() {
         >
           <div className="p-6 h-full max-w-[450px] w-full flex items-center justify-center">
             <WeatherCardContainer 
-              locationId="MA3874" 
+              locationId="30.42,-9.6" 
               cityName="Agadir" 
               country="Morocco"
               personName="Fadoua" 

@@ -3,7 +3,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 /**
  * 天气数据查询API，同时获取当前天气和未来3天预报
  * @param req 包含查询参数：
- *   - location: 城市ID（如"101010100"）或名称（如"北京"）或经纬度（如"31.50,-9.77"）
+ *   - location: 城市ID（如"101010100"）或名称（如"北京"）或经纬度（如"30.42,-9.6"）
  *   - lang: 返回语言，默认zh (可选，支持zh/en)
  *   - unit: 温度单位，默认m (可选，m=摄氏度，i=华氏度)
  * @param res 返回天气数据，包括当前天气和3天预报
@@ -32,15 +32,22 @@ export default async function handler(
     
     // 规范化位置参数
     let normalizedLocation = location;
-    // 检查是否是经纬度格式 (如 "31.50,-9.77")
+    
+    // 检查是否是经纬度格式 (如 "30.42,-9.6")
     if (typeof location === 'string' && location.includes(',')) {
-      // 经纬度格式需要特殊处理，确保没有空格，并保留负号
-      normalizedLocation = location.replace(/\s+/g, '');
-      
-      // 特殊情况处理：确保负号正确
-      if (location === "31.50,-9.77" && normalizedLocation !== "31.50,-9.77") {
-        console.log(`修正经纬度格式从 ${normalizedLocation} 到 31.50,-9.77`);
-        normalizedLocation = "31.50,-9.77";
+      // 确保经纬度格式正确，移除所有空格并保留负号
+      const parts = location.split(',').map(part => part.trim());
+      if (parts.length === 2) {
+        const lat = parseFloat(parts[0]);
+        const lon = parseFloat(parts[1]);
+        
+        if (!isNaN(lat) && !isNaN(lon)) {
+          // 使用标准格式重构经纬度，确保精度和格式正确
+          normalizedLocation = `${lat.toFixed(2)},${lon.toFixed(2)}`;
+          console.log(`规范化经纬度: ${location} -> ${normalizedLocation}`);
+        } else {
+          console.error(`无效的经纬度格式: ${location}`);
+        }
       }
     }
 
@@ -59,7 +66,7 @@ export default async function handler(
       - Forecast: ${forecastUrl.replace(apiKey, 'API_KEY_HIDDEN')}`);
 
     // 设置请求超时
-    const timeout = 15000; // 15秒
+    const timeout = 20000; // 20秒
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), timeout);
 
@@ -75,11 +82,27 @@ export default async function handler(
       // 检查HTTP状态 - 注意：这里返回200状态码但在payload中包含错误信息
       if (!weatherResponse.ok || !forecastResponse.ok) {
         console.error(`HTTP error! Weather: ${weatherResponse.status}, Forecast: ${forecastResponse.status}`);
+        
+        // 尝试读取错误响应内容来获取更多信息
+        let weatherErrorText = '';
+        let forecastErrorText = '';
+        
+        try {
+          weatherErrorText = await weatherResponse.text();
+          forecastErrorText = await forecastResponse.text();
+        } catch (e) {
+          console.error('读取错误响应时失败:', e);
+        }
+        
         return res.status(200).json({ 
           error: `Weather API returned HTTP error`,
           weatherStatus: weatherResponse.status,
           forecastStatus: forecastResponse.status,
-          location: location
+          location: location,
+          details: {
+            weatherError: weatherErrorText,
+            forecastError: forecastErrorText
+          }
         });
       }
 
