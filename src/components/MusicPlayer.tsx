@@ -89,7 +89,7 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({ songs = [
 
   // 上一首歌
   const prevSong = () => {
-    setCurrentSong((prev: number) => (prev === 0 ? songs.length - 1 : prev - 1));
+    setCurrentSong(currentSong === 0 ? songs.length - 1 : currentSong - 1);
     setIsPlaying(true);
   };
 

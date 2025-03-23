@@ -9,7 +9,7 @@ import styled from 'styled-components';
 import { usePathname } from 'next/navigation';
 
 // 从Pattern组件导入相同的渐变值和不透明度
-import { GRADIENT_PATTERN, PATTERN_OPACITY } from '@/components/Pattern';
+import { correctPatternName, correctOpacityName } from '@/components/Pattern'; 
 
 // 创建一个完全透明的导航容器，用于special页面
 const TransparentNavContainer = styled.nav`
