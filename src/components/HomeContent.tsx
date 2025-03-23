@@ -178,7 +178,7 @@ export default function HomeContent() {
           className="red-panel bg-days-red h-full opacity-0 transform translate-x-[-100%] relative flex items-center justify-center"
           style={redPanelStyle}
         >
-          <div className="p-6 h-full max-w-[450px] w-full flex items-center justify-center pt-10">
+          <div className="p-6 h-full max-w-[450px] w-full flex items-center justify-center pt-24">
             <WeatherCardContainer 
               locationId="30.42,-9.6" 
               cityName="Agadir" 
@@ -208,7 +208,7 @@ export default function HomeContent() {
           className="green-panel bg-days-green h-full opacity-0 transform translate-x-[100%] relative flex items-center justify-center"
           style={greenPanelStyle}
         >
-          <div className="p-6 h-full max-w-[450px] w-full flex items-center justify-center pt-10">
+          <div className="p-6 h-full max-w-[450px] w-full flex items-center justify-center pt-24">
             <WeatherCardContainer 
               locationId="CN101300801" 
               cityName="Guigang" 
