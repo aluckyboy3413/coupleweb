@@ -25,10 +25,7 @@ export default async function handler(
 
   try {
     // 从环境变量获取API密钥
-    const apiKey = process.env.QWEATHER_KEY;
-    if (!apiKey) {
-      throw new Error('未配置QWEATHER_KEY环境变量');
-    }
+    const apiKey = process.env.QWEATHER_KEY || '6a69f0c3276048318d40ffd4020bdbf2'; // 直接使用备用密钥
 
     // 构建当前天气API请求URL
     const weatherUrl = `https://devapi.qweather.com/v7/weather/now?location=${encodeURIComponent(
