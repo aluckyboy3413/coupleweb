@@ -10,6 +10,7 @@ interface WeatherCardContainerProps {
   personName: string;
   colorTheme: 'warm' | 'cool';
   timezone?: number;
+  forceMockData?: boolean;
 }
 
 interface WeatherData {
@@ -34,6 +35,7 @@ interface GeoLocation {
   name: string;
   lat: string;
   lon: string;
+  country: string;
 }
 
 // 模拟数据 - 阿加迪尔（摩洛哥）温暖气候
@@ -112,7 +114,8 @@ const WeatherCardContainer: React.FC<WeatherCardContainerProps> = ({
   country,
   personName,
   colorTheme,
-  timezone
+  timezone,
+  forceMockData = true
 }) => {
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [forecast, setForecast] = useState<ForecastItem[]>([]);
@@ -120,7 +123,7 @@ const WeatherCardContainer: React.FC<WeatherCardContainerProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [currentDate, setCurrentDate] = useState('');
   const [cityId, setCityId] = useState<string | null>(null);
-  const [usingMockData, setUsingMockData] = useState(false);
+  const [usingMockData, setUsingMockData] = useState(forceMockData);
   
   // 根据城市名选择使用哪个模拟数据
   const getMockData = () => {
@@ -208,6 +211,18 @@ const WeatherCardContainer: React.FC<WeatherCardContainerProps> = ({
     const checkAndFetchWeatherData = async () => {
       setLoading(true);
       setError(null);
+      
+      // 如果强制使用模拟数据，直接返回模拟数据
+      if (forceMockData) {
+        console.log(`强制使用模拟数据: ${cityName}`);
+        const mockData = getMockData();
+        setWeather(mockData.weather);
+        setForecast(mockData.forecast);
+        setUsingMockData(true);
+        setLoading(false);
+        return;
+      }
+      
       setUsingMockData(false);
       
       const storageKey = `weather_${cityId}`;
@@ -344,7 +359,7 @@ const WeatherCardContainer: React.FC<WeatherCardContainerProps> = ({
     // 每小时刷新一次天气数据
     const interval = setInterval(checkAndFetchWeatherData, 60 * 60 * 1000);
     return () => clearInterval(interval);
-  }, [cityId, cityName]);
+  }, [cityId, cityName, forceMockData]);
 
   if (loading) {
     return (

@@ -186,6 +186,7 @@ export default function HomeContent() {
               personName="Fadoua" 
               colorTheme="warm"
               timezone={1} /* 摩洛哥阿加迪尔(西部时间)为UTC+1 */
+              forceMockData={true} /* 强制使用模拟数据 */
             />
           </div>
         </div>
@@ -215,6 +216,7 @@ export default function HomeContent() {
               personName="Jianwei" 
               colorTheme="cool"
               timezone={8} /* 中国为UTC+8 */
+              forceMockData={true} /* 强制使用模拟数据 */
             />
           </div>
         </div>
