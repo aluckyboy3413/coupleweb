@@ -137,25 +137,42 @@ export default function Home() {
   }, [particles]);
   
   // 计算各元素的视差位移
-  const redPanelStyle = {
-    transform: `translate(${(mousePosition.x / window.innerWidth - 0.5) * 2 * -15}px, ${(mousePosition.y / window.innerHeight - 0.5) * 2 * -15}px)`,
-    transition: 'transform 0.3s ease-out',
+  const getParallaxStyles = () => {
+    // 服务器端渲染时返回默认样式
+    if (typeof window === 'undefined') {
+      return {
+        redPanelStyle: { transition: 'transform 0.3s ease-out' },
+        bluePanelStyle: { transition: 'transform 0.3s ease-out' },
+        greenPanelStyle: { transition: 'transform 0.3s ease-out' },
+        titleStyle: { transition: 'transform 0.2s ease-out' }
+      };
+    }
+    
+    // 客户端渲染时返回带视差效果的样式
+    return {
+      redPanelStyle: {
+        transform: `translate(${(mousePosition.x / window.innerWidth - 0.5) * 2 * -15}px, ${(mousePosition.y / window.innerHeight - 0.5) * 2 * -15}px)`,
+        transition: 'transform 0.3s ease-out',
+      },
+      
+      bluePanelStyle: {
+        transform: `translate(${(mousePosition.x / window.innerWidth - 0.5) * 2 * -8}px, ${(mousePosition.y / window.innerHeight - 0.5) * 2 * -8}px)`,
+        transition: 'transform 0.3s ease-out',
+      },
+      
+      greenPanelStyle: {
+        transform: `translate(${(mousePosition.x / window.innerWidth - 0.5) * 2 * -20}px, ${(mousePosition.y / window.innerHeight - 0.5) * 2 * -20}px)`,
+        transition: 'transform 0.3s ease-out',
+      },
+      
+      titleStyle: {
+        transform: `translate(${(mousePosition.x / window.innerWidth - 0.5) * 2 * 10}px, ${(mousePosition.y / window.innerHeight - 0.5) * 2 * 10}px)`,
+        transition: 'transform 0.2s ease-out',
+      }
+    };
   };
   
-  const bluePanelStyle = {
-    transform: `translate(${(mousePosition.x / window.innerWidth - 0.5) * 2 * -8}px, ${(mousePosition.y / window.innerHeight - 0.5) * 2 * -8}px)`,
-    transition: 'transform 0.3s ease-out',
-  };
-  
-  const greenPanelStyle = {
-    transform: `translate(${(mousePosition.x / window.innerWidth - 0.5) * 2 * -20}px, ${(mousePosition.y / window.innerHeight - 0.5) * 2 * -20}px)`,
-    transition: 'transform 0.3s ease-out',
-  };
-  
-  const titleStyle = {
-    transform: `translate(${(mousePosition.x / window.innerWidth - 0.5) * 2 * 10}px, ${(mousePosition.y / window.innerHeight - 0.5) * 2 * 10}px)`,
-    transition: 'transform 0.2s ease-out',
-  };
+  const { redPanelStyle, bluePanelStyle, greenPanelStyle, titleStyle } = getParallaxStyles();
 
   return (
     <div className="min-h-screen flex flex-col h-full">
