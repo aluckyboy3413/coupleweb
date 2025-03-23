@@ -29,6 +29,13 @@ interface ForecastItem {
   iconDay: string;
 }
 
+interface GeoLocation {
+  id: string;
+  name: string;
+  lat: string;
+  lon: string;
+}
+
 const WeatherCardContainer: React.FC<WeatherCardContainerProps> = ({
   locationId,
   cityName,
@@ -42,8 +49,53 @@ const WeatherCardContainer: React.FC<WeatherCardContainerProps> = ({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentDate, setCurrentDate] = useState('');
+  const [cityId, setCityId] = useState<string | null>(null);
   
+  // 获取城市ID
   useEffect(() => {
+    const fetchCityId = async () => {
+      // 如果已经是城市ID格式 (CN开头的城市代码)，直接使用
+      if (locationId.startsWith('CN') && locationId.length > 2) {
+        setCityId(locationId);
+        return;
+      }
+      
+      try {
+        // 使用城市查询API获取城市ID
+        console.log(`正在查询城市 ${cityName} (${locationId}) 的ID...`);
+        const response = await fetch(`/api/geo?location=${encodeURIComponent(locationId)}&lang=en`);
+        
+        if (!response.ok) {
+          throw new Error(`城市查询API返回状态码 ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log('城市查询结果:', data);
+        
+        if (data.code === '200' && data.location && data.location.length > 0) {
+          const city = data.location[0];
+          console.log(`找到城市 ${city.name}，ID: ${city.id}`);
+          setCityId(city.id);
+        } else {
+          // 如果查询失败，继续使用原始locationId
+          console.warn(`未找到城市 ${cityName} 的ID，将继续使用原始ID: ${locationId}`);
+          setCityId(locationId);
+        }
+      } catch (err) {
+        console.error('查询城市ID时出错:', err);
+        // 出错时继续使用原始locationId
+        setCityId(locationId);
+      }
+    };
+    
+    fetchCityId();
+  }, [locationId, cityName]);
+  
+  // 获取天气数据
+  useEffect(() => {
+    // 如果还没有获取到cityId，等待
+    if (!cityId) return;
+    
     // 设置当前日期
     const date = new Date();
     const options: Intl.DateTimeFormatOptions = { month: 'long', day: 'numeric' };
@@ -54,9 +106,9 @@ const WeatherCardContainer: React.FC<WeatherCardContainerProps> = ({
       setLoading(true);
       setError(null);
       
-      const storageKey = `weather_${locationId}`;
-      const forecastKey = `forecast_${locationId}`;
-      const timestampKey = `weather_timestamp_${locationId}`;
+      const storageKey = `weather_${cityId}`;
+      const forecastKey = `forecast_${cityId}`;
+      const timestampKey = `weather_timestamp_${cityId}`;
       
       try {
         const cachedTimestamp = localStorage.getItem(timestampKey);
@@ -77,7 +129,7 @@ const WeatherCardContainer: React.FC<WeatherCardContainerProps> = ({
         }
         
         // 调试信息：获取位置信息
-        console.log(`Fetching weather data for location: ${locationId}, city: ${cityName}`);
+        console.log(`Fetching weather data for location: ${cityId}, city: ${cityName}`);
         
         // 缓存不存在或已过期，从API获取新数据
         // 设置超时以避免长时间等待
@@ -85,7 +137,7 @@ const WeatherCardContainer: React.FC<WeatherCardContainerProps> = ({
         const timeoutId = setTimeout(() => controller.abort(), 5000); // 5秒超时
         
         try {
-          const response = await fetch(`/api/weather?location=${encodeURIComponent(locationId)}&lang=en`, {
+          const response = await fetch(`/api/weather?location=${encodeURIComponent(cityId)}&lang=en`, {
             signal: controller.signal
           });
           
@@ -119,13 +171,17 @@ const WeatherCardContainer: React.FC<WeatherCardContainerProps> = ({
             // API响应格式不正确
             throw new Error('Invalid API response format');
           }
-        } catch (fetchError) {
-          if (fetchError.name === 'AbortError') {
-            throw new Error('Request timeout after 5 seconds');
+        } catch (fetchError: unknown) {
+          clearTimeout(timeoutId);
+          if (fetchError instanceof Error) {
+            if (fetchError.name === 'AbortError') {
+              throw new Error('Request timeout after 5 seconds');
+            }
+            throw fetchError;
           }
-          throw fetchError;
+          throw new Error('未知的API请求错误');
         }
-      } catch (err) {
+      } catch (err: unknown) {
         console.error('Error in weather data fetch:', err);
         
         // 尝试使用缓存数据（即使已过期）
@@ -138,7 +194,7 @@ const WeatherCardContainer: React.FC<WeatherCardContainerProps> = ({
           setError('Using expired cached data (API request failed)');
           console.warn('Using expired cached data due to API error');
         } else {
-          setError(`${err.message || 'Failed to fetch weather data'}`);
+          setError(err instanceof Error ? err.message : 'Failed to fetch weather data');
         }
       } finally {
         setLoading(false);
@@ -150,7 +206,7 @@ const WeatherCardContainer: React.FC<WeatherCardContainerProps> = ({
     // 每小时刷新一次天气数据
     const interval = setInterval(checkAndFetchWeatherData, 60 * 60 * 1000);
     return () => clearInterval(interval);
-  }, [locationId, cityName]);
+  }, [cityId, cityName]);
 
   if (loading) {
     return (
@@ -165,7 +221,7 @@ const WeatherCardContainer: React.FC<WeatherCardContainerProps> = ({
       <div className="flex items-center justify-center h-full">
         <div className="text-white text-xl">
           <p>{error}</p>
-          <p>City ID: {locationId}</p>
+          <p>City ID: {cityId || locationId}</p>
         </div>
       </div>
     );

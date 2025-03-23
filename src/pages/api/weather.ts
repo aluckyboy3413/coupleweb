@@ -34,8 +34,14 @@ export default async function handler(
     let normalizedLocation = location;
     // 检查是否是经纬度格式 (如 "31.50,-9.77")
     if (typeof location === 'string' && location.includes(',')) {
-      // 经纬度格式需要特殊处理，确保没有空格
+      // 经纬度格式需要特殊处理，确保没有空格，并保留负号
       normalizedLocation = location.replace(/\s+/g, '');
+      
+      // 特殊情况处理：确保负号正确
+      if (location === "31.50,-9.77" && normalizedLocation !== "31.50,-9.77") {
+        console.log(`修正经纬度格式从 ${normalizedLocation} 到 31.50,-9.77`);
+        normalizedLocation = "31.50,-9.77";
+      }
     }
 
     // 构建当前天气API请求URL
@@ -105,17 +111,21 @@ export default async function handler(
       };
 
       return res.status(200).json(responseData);
-    } catch (fetchError) {
-      if (fetchError.name === 'AbortError') {
+    } catch (fetchError: unknown) {
+      if (fetchError instanceof Error && fetchError.name === 'AbortError') {
         throw new Error(`Request timeout after ${timeout/1000} seconds`);
       }
       throw fetchError;
     }
-  } catch (error) {
+  } catch (error: unknown) {
+    let errorMessage = 'Unknown error';
+    if (error instanceof Error) {
+      errorMessage = error.message;
+    }
     console.error('获取天气数据时出错:', error);
     return res.status(500).json({ 
       error: '服务器错误', 
-      message: error.message,
+      message: errorMessage,
       location: location
     });
   }
