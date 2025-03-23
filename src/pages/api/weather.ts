@@ -59,7 +59,7 @@ export default async function handler(
       - Forecast: ${forecastUrl.replace(apiKey, 'API_KEY_HIDDEN')}`);
 
     // 设置请求超时
-    const timeout = 10000; // 10秒
+    const timeout = 15000; // 15秒
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), timeout);
 
@@ -72,9 +72,15 @@ export default async function handler(
       
       clearTimeout(timeoutId);
       
-      // 检查HTTP状态
+      // 检查HTTP状态 - 注意：这里返回200状态码但在payload中包含错误信息
       if (!weatherResponse.ok || !forecastResponse.ok) {
-        throw new Error(`HTTP error! Weather: ${weatherResponse.status}, Forecast: ${forecastResponse.status}`);
+        console.error(`HTTP error! Weather: ${weatherResponse.status}, Forecast: ${forecastResponse.status}`);
+        return res.status(200).json({ 
+          error: `Weather API returned HTTP error`,
+          weatherStatus: weatherResponse.status,
+          forecastStatus: forecastResponse.status,
+          location: location
+        });
       }
 
       // 解析响应
@@ -85,9 +91,9 @@ export default async function handler(
       if (weatherData.code !== '200' || forecastData.code !== '200') {
         console.error('天气API返回错误: ', JSON.stringify({ 
           weatherCode: weatherData.code,
-          weatherMsg: weatherData.message || weatherData.msg || weatherData.fxLink,
+          weatherMsg: weatherData.message || weatherData.msg || 'Unknown error',
           forecastCode: forecastData.code,
-          forecastMsg: forecastData.message || forecastData.msg || forecastData.fxLink,
+          forecastMsg: forecastData.message || forecastData.msg || 'Unknown error',
           location
         }, null, 2));
         
@@ -96,6 +102,7 @@ export default async function handler(
           weatherCode: weatherData.code,
           forecastCode: forecastData.code,
           location,
+          message: weatherData.message || weatherData.msg || 'Unknown error',
           details: {
             weather: weatherData,
             forecast: forecastData
@@ -112,8 +119,13 @@ export default async function handler(
 
       return res.status(200).json(responseData);
     } catch (fetchError: unknown) {
+      clearTimeout(timeoutId);
       if (fetchError instanceof Error && fetchError.name === 'AbortError') {
-        throw new Error(`Request timeout after ${timeout/1000} seconds`);
+        return res.status(200).json({
+          error: `请求超时`,
+          message: `Request timeout after ${timeout/1000} seconds`,
+          location: location
+        });
       }
       throw fetchError;
     }
@@ -123,7 +135,7 @@ export default async function handler(
       errorMessage = error.message;
     }
     console.error('获取天气数据时出错:', error);
-    return res.status(500).json({ 
+    return res.status(200).json({ 
       error: '服务器错误', 
       message: errorMessage,
       location: location
