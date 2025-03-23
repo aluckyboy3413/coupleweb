@@ -1,0 +1,1 @@
+// CHIMMY is a BT21 character. They are the Kpop artist BTS's cute avatar version. CHIMMY represents JIMIN from BTS

@@ -1,0 +1,8 @@
+mixin heading(className)
+	p(class=className) Hello
+	
+.grid
+	+heading('stroke shadow')
+	+heading('stroke-shadow')
+	+heading('stroke halftone')
+	+heading('stroke halftone halftone-color')

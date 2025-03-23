@@ -1,0 +1,164 @@
+$mid-grey: #868e96;
+$black: #343a40;
+$white: #f7f9fa;
+
+body {
+  background: $black;
+  font-family: "Nunito Sans", sans-serif;
+}
+
+img {
+  backface-visibility: hidden;
+}
+
+#toggle-dark {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 1000;
+  
+  &:hover {
+    cursor: pointer;
+  }
+}
+
+.base-img {
+  margin-bottom: 16px;
+}
+
+.base-img main {
+  text-align: center;
+}
+
+.base-img div {
+  margin-top: 16px;
+  display: inline-block;
+}
+
+.base-img img {
+  box-shadow: 0 0.3rem 2rem rgba(51, 51, 51, 0.15);
+}
+
+.main-carousel {
+  margin-top: 16px;
+  margin-bottom: 32px;
+  width: calc(100% - 30px);
+  margin-left: auto;
+  margin-right: auto;
+
+  .carousel-cell {
+    width: 160px;
+    margin-right: 16px;
+
+    img {
+      height: 160px;
+    }
+
+    .filter-caption {
+      color: $white;
+      text-transform: uppercase;
+      text-align: center;
+      width: 100%;
+      margin-bottom: 1rem;
+    }
+  }
+
+  .carousel-cell.is-clicked {
+    background: $white;
+
+    .filter-caption {
+      color: $black;
+    }
+  }
+
+  .flickity-prev-next-button {
+    width: 30px;
+    height: 160px;
+    top: 80px;
+    border-radius: 0;
+    background: $black;
+  }
+
+  .flickity-prev-next-button .arrow {
+    fill: $white;
+  }
+
+  .flickity-prev-next-button.no-svg {
+    color: $white;
+  }
+
+  .flickity-prev-next-button.previous {
+    left: -30px;
+  }
+
+  .flickity-prev-next-button.next {
+    right: -30px;
+  }
+}
+
+.error {
+  color: $white;
+  text-align: center;
+  display: none;
+  margin: 16px auto;
+}
+
+.custom-img {
+  margin-top: 16px;
+  margin-bottom: 16px;
+  border-radius: 0;
+}
+
+.heading {
+  color: $white;
+  text-align: center;
+  margin-top: 16px;
+}
+
+.subheading {
+  color: rgba(255, 255, 255, 0.7);
+  text-align: center;
+}
+
+html.light {
+  body {
+    background: $white;
+  }
+
+  .heading,
+  .error {
+    color: $black;
+  }
+
+  .subheading {
+    color: $mid-grey;
+  }
+
+  .main-carousel {
+    .carousel-cell {
+      .filter-caption {
+        color: $black;
+      }
+    }
+
+    .carousel-cell.is-clicked {
+      background: $black;
+
+      .filter-caption {
+        color: $white;
+      }
+    }
+
+    .flickity-prev-next-button {
+      background: $white;
+    }
+
+    .flickity-prev-next-button .arrow {
+      fill: $black;
+    }
+
+    .flickity-prev-next-button.no-svg {
+      color: $black;
+    }
+  }
+}

@@ -1,0 +1,26 @@
+<button type="button" class="btn btn-dark" id="toggle-dark" name="dark_light" title="Toggle dark/light mode">🌛</button>
+
+.container      
+  .row
+    .col-md-8.mx-auto.base-img
+      h1.heading Instagram CSS Filter
+      p.subheading (Click on a filter below)
+      input.form-control.custom-img(placeholder="Paste a URL of your own image")
+      main
+        div
+          img.img-fluid(src="https://images.unsplash.com/photo-1502673530728-f79b4cab31b1?auto=format&fit=crop&w=700&h=700&q=80")
+      span.error Image not found, so here is another doggy
+  .row
+    .col-12
+      .main-carousel
+        each val in ["normal", "1977", "aden", "amaro", "ashby", "brannan", "brooklyn", "charmes", "clarendon", "crema", "dogpatch", "earlybird", "gingham", "ginza", "hefe", "helena", "hudson", "inkwell", "kelvin", "juno", "lark", "lofi", "ludwig", "maven", "mayfair", "moon", "nashville", "perpetua", "poprocket", "reyes", "rise", "sierra", "skyline", "slumber", "stinson", "sutro", "toaster", "valencia", "vesper", "walden", "willow", "xpro-ii"]
+          if val == "normal"
+            .carousel-cell.is-clicked
+              figure(class='filter-' + val)
+                img.img-fluid(src="https://images.unsplash.com/photo-1491378630646-3440efa57c3b?auto=format&fit=crop&w=320&h=320&q=80")
+              div.filter-caption=val
+          else
+            .carousel-cell
+              figure(class='filter-' + val)
+                img.img-fluid(src="https://images.unsplash.com/photo-1491378630646-3440efa57c3b?auto=format&fit=crop&w=320&h=320&q=80")
+              div.filter-caption=val

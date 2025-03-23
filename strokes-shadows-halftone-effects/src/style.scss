@@ -1,0 +1,92 @@
+$body: #fef3c7;
+$stroke: #111827;
+$shadow: #db2777;
+$halftone: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAMAAAADCAYAAABWKLW/AAAAHElEQVQYV2NUVFT8f//+fUYGBgYGMAEDcA5IBQCKJQVmn76DhAAAAABJRU5ErkJggg==");
+
+@mixin stroke-width($property) {
+	-webkit-text-stroke-width: $property;
+	-moz-text-stroke-width: $property;
+}
+
+@mixin stroke-color($property) {
+	-webkit-text-stroke-color: $property;
+	-moz-text-stroke-color: $property;
+}
+
+@mixin background-clip($property) {
+	-webkit-background-clip: $property;
+	-moz-background-clip: $property;
+	background-clip: $property;
+}
+
+@mixin fill-color($property) {
+	-webkit-text-fill-color: $property;
+	-moz-text-fill-color: $property;
+}
+
+.stroke {
+	@include stroke-width(2px);
+	@include stroke-color($stroke);
+	color: transparent;
+}
+
+.shadow {
+	text-shadow: 6px 6px $shadow;
+}
+
+.stroke-shadow {
+	color: $body;
+	text-shadow: -2px 0 $stroke, 0 -2px $stroke, 2px 0 $stroke, 0 2px $stroke,
+		2px 2px $stroke, -2px -2px $stroke, -2px 2px $stroke, 2px -2px $stroke,
+		6px 6px $shadow;
+}
+
+.halftone {
+	position: relative;
+
+	&:after {
+		content: "Hello";
+		background: $halftone repeat;
+		font-size: 15vw;
+		letter-spacing: 6px;
+		left: calc(50% + 6px);
+		position: absolute;
+		top: calc(50% + 6px);
+		transform: translate(-50%, -50%);
+		z-index: -1;
+		@include stroke-width(0);
+		@include background-clip(text);
+		@include fill-color(transparent);
+	}
+}
+
+.halftone-color {
+	&:after {
+		background-color: $shadow;
+	}
+}
+
+body {
+	background-color: $body;
+	display: grid;
+	height: 100vh;
+	place-content: center;
+	text-align: center;
+
+	p {
+		font-size: 15vw;
+		font-weight: bold;
+		letter-spacing: 5px;
+		margin: 0;
+	}
+
+	.grid {
+		display: grid;
+		grid-gap: 5vw;
+		grid-template-columns: 1fr;
+
+		@media screen and (min-width: 768px) {
+			grid-template-columns: 1fr 1fr;
+		}
+	}
+}

@@ -1,0 +1,1065 @@
+@use postcss-nested;
+@use postcss-simple-vars;
+
+$t-body: #F62B41;
+$t-body-dark: #DC0C24;
+$t-body-shadow: #C20049;
+$t-body-shadow-dark: #9C0030;
+$t-body-light-shadow: #C4303E;
+$white: #ffffff;
+$white-shadow: #DFAFBF;
+$handler: #F0C4DF;
+$handler-shadow: #CC98B8;
+$black: #2B3335;
+$grey: #413239;
+$mouth-up: #7F1B33;
+$mouth-tongue: #C3004B;
+$t-handler-shadow: #9C0749;
+$shadow: #FD5274;
+$blush: #C50B22;
+$bread: #FFB071;
+$bread-pic: #DC8341;
+$bread-shadow: #B65119;
+$bread-bubbles:#FBA45F;
+$bread-bubbles-shadow:#EE9050;
+$animation-timing: 8s;
+$animation-timing-function: infinite;
+
+.wrapper {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(to top,#FF6B89 ,#FE6986);
+
+    &:before {
+        content: '';
+        background-image: url(data:image/png;base64,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);
+        background-repeat: repeat;
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        left: 0;
+        opacity: 0.3;
+    }
+    &-content{
+        width: 370px;
+        height: 238px;
+        z-index: 1;
+        position: relative;
+        padding: 0 150px;
+    }
+}
+.toaster {
+    z-index: 1;
+    position: relative;
+    animation: shaking $animation-timing $animation-timing-function;
+
+    &-body {
+        width: 344px;
+        height: 175px;
+        position: relative;
+
+        &-main {
+            background: #F62B41;
+            border-radius: 61px 61px 0 0;
+            box-shadow: 77px 0px 0 0px inset $t-body-shadow;
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            transform-origin: center bottom;
+            animation: body $animation-timing $animation-timing-function,
+                body-color $animation-timing $animation-timing-function;
+        }
+    }
+    &-bottom {
+        position: relative;
+        height: 52px;
+        width: 372px;
+        margin-left: -14px;
+    }
+    &-line {
+        position: relative;
+        height: 30px;
+        background: $white;
+        border-radius: 15px;
+
+        &:after {
+            content: '';
+            background: $white-shadow;
+            position: absolute;
+            left: 0;
+            width: 125px;
+            top: 0;
+            bottom: 0;
+            border-radius: 15px
+        }
+    }
+    &-legs {
+        height: 22px;
+        position: relative;
+
+        &:before,
+        &:after {
+            content: '';
+            background: $grey;
+            width: 69px;
+            height: 22px;
+            border-radius: 0 0 15px 15px;
+            box-shadow: 23px 0px 0 0px inset $black;
+            position: absolute;
+        }
+        &:before {
+            left: 37px;
+        }
+        &:after {
+            right: 34px;
+        }
+    }
+    &-face {
+        position: absolute;
+        right: 21px;
+        top: 25px;
+        height: 137px;
+        width: 221px;
+
+        &-blush {
+            position: absolute;
+            top: 87px;
+            left: 0;
+            right: 0;
+            height: 30px;
+
+            &:before,
+            &:after {
+                content: '';
+                position: absolute;
+                top: 7px;
+                width: 37px;
+                height: 17px;
+                border-radius: 100%;
+                background: $blush;
+                animation: blush $animation-timing $animation-timing-function;
+            }
+            &:before {
+                left: 8px;
+            }
+            &:after {
+                right: 8px;
+            }
+        }
+
+        &-happy {
+            position: absolute;
+            width: 100%;
+            height: 100%;  
+            animation: face-happy $animation-timing $animation-timing-function;
+        }
+
+        &-tense {
+            position: absolute;
+            width: 100%;
+            height: 100%;  
+            animation: face-tense $animation-timing $animation-timing-function;
+        }
+    }
+    &-eyes-tense-wr {
+        position: absolute;
+        left: 0;
+        right: 0;
+        height: 90px;
+        animation: eyes-tense $animation-timing $animation-timing-function;
+    } 
+    &-eyes-tense {
+        position: absolute;
+        width: 75px;
+        height: 54px;
+        top: 20px;
+
+        &:before {
+            content: '';
+            width: 47px;
+            height: 12px;
+            background: $black;
+            position: absolute;
+            border-radius: 20px;
+            top: 25px;
+        }
+        &:after {
+            content: '';
+            width: 47px;
+            height: 12px;
+            background: $black;
+            position: absolute;
+            border-radius: 20px;
+            top: 30px;
+        }
+
+        &--right {
+            left: 28px;
+
+            &:before {
+                left: 20px;
+                transform: rotate(21deg);
+            }
+            &:after {
+                left: 20px;
+                top: 40px;
+                transform: rotate(-24deg);
+            }
+        }
+        &--left {
+            right: 28px;
+
+            &:before {
+                left: 25px;
+                transform: rotate(-21deg);
+            }
+            &:after {
+                left: 25px;
+                top: 40px;
+                transform: rotate(24deg);
+            }
+        }
+    }
+
+    &-mouth-tense {
+        border: 10px solid transparent;
+        width: 33px;
+        height: 33px;
+        position: absolute;
+        left: 92px;
+        bottom: 24px;
+        border-radius: 100%;
+        border-bottom-color: $black;
+
+        &:before,
+        &:after {
+            content: '';
+            background: $black;
+            width: 10px;
+            height: 10px;
+            border-radius: 100%;
+            position: absolute;
+            bottom: -3px;
+        }
+
+        &:before {
+            left: -5px;
+        }
+        &:after {
+            right: -5px;
+        }
+    }
+    &-eyes-happy  {
+        position: absolute;
+        background: #ffffff;
+        width: 32px;
+        height: 67px;
+        box-shadow: 3px -2px 0 0px $white-shadow inset, 
+            -7px 4px 1px -3px $t-body-light-shadow;
+        border-radius: 20px;
+        animation: eyes $animation-timing $animation-timing-function;
+
+        &:after{
+            content: '';
+            background: $black;
+            width: 17px;
+            height: 45px;
+            border-radius: 10px;
+            position: absolute;
+            top: 11px;
+            left: 9px;
+            transform-origin: left center;
+            animation: pupil $animation-timing $animation-timing-function;
+        }
+        
+        &--right {
+            left: 49px;
+            top: 9px;
+        }
+        &--left {
+            right: 40px;
+            top: 9px;
+        }
+    }
+    &-mouth-happy {
+        width: 100px;
+        height: 50px;
+        position: absolute;
+        top: 83px;
+        left: 65px;
+
+        &-main {
+						z-index: 1;
+            background: $mouth-up;
+            width: 76px;
+            height: 39px;
+            position: absolute;
+            left: 13px;
+            top: 5px;
+            border-radius: 9px 9px 45px 45px;
+            box-shadow: -3px 2px 0 0px $t-body-light-shadow;
+            overflow: hidden;
+
+            &:before {
+                content: '';
+                background: $mouth-tongue;
+                width: 61px;
+                height: 28px;
+                border-radius: 100%;
+                position: absolute;
+                left: 7px;
+                top: 20px;
+                z-index: 1;
+            }
+            &:after {
+                content: '';
+                background: $t-body;
+                width: 46px;
+                height: 28px;
+                border-radius: 100%;
+                position: absolute;
+                left: 15px;
+                top: -20px;
+                z-index: 1;
+                box-shadow: 0 0 2px 0 $t-body;
+                animation: mouth-upper-color $animation-timing $animation-timing-function
+            }
+        }
+
+        &-teeth {
+            position: relative;
+            top: 0;
+            height: 18px;
+
+            &:before,
+            &:after {
+                content: '';
+                background: $white;
+                position: absolute;
+                top: 0;
+                height: 16px;
+                width: 10px;
+                box-shadow: 3px 0 0 0px $white-shadow inset;
+                border-radius: 6px;
+            }
+
+            &:before {
+                left: 24px;
+            }
+            &:after {
+                right: 25px;
+            }
+        }
+    }
+    &-switch {
+        position: absolute;
+        left: 8px;
+        width: 57px;
+        height: 123px;
+        top: 40px;
+        animation: switch $animation-timing $animation-timing-function;
+
+        &-hole {
+            background: $t-handler-shadow;
+            position: absolute;
+            left: 17px;
+            top: 5px;
+            width: 16px;
+            height: 107px;
+            border-radius: 20px;
+
+            &:before {
+                content: '';
+                background:  $black;
+                position: absolute;
+                left: 8px;
+                top: 2px;
+                bottom: 1px;
+                width: 10px;
+                border-radius: 182px;
+            }
+        }
+
+        &-handler {
+            background: $handler;
+            position: absolute;
+            top: 85px;
+            left: 6px;
+            width: 39px;
+            height: 20px;
+            border-radius: 4px;
+            box-shadow: -6px 0 0 0px $handler-shadow inset;
+            transform-origin: center bottom;
+            animation: handler $animation-timing $animation-timing-function;
+        }
+    }
+}
+.shadow {
+    position: absolute;
+    width: 437px;
+    height: 20px;
+    border-radius: 10px;
+    background: $shadow;
+    bottom: 0;
+    left: 98px;
+}
+.bread {
+    position: absolute;
+    top: 100px;
+    left: 100px;
+    background: $bread;
+    width: 97px;
+    height: 94px;
+    border-radius: 20px;
+    box-shadow: -10px 0 0 0 $bread-shadow;
+
+    &:before,
+    &:after {
+        content: '';
+        position: absolute;
+        width: 40px;
+        background:  $bread;
+        top: 0;
+        bottom: 0;
+        border-radius: 10px;
+    }
+    &:before {
+        left: -1px;
+        transform: skewX(-4deg);
+        box-shadow: -10px 0 0 0 #b65119;
+    }
+    &:after{
+        right: -1px;
+        transform: skewX(4deg);
+    }
+    &--heart {
+        left: 229px;
+        top: 76px;
+        animation: bread-heart $animation-timing $animation-timing-function;
+
+        .bread-bubbles {
+            &--1 {
+                top: -12px;
+                left: 2px;
+                width: 18px;
+                height: 18px;
+                box-shadow: inset 4px -3px 0 0 $bread-bubbles-shadow;
+
+                &:before {
+                    top: -3px;
+                    left: 46px;
+                    width: 10px;
+                    height: 10px;
+                    box-shadow: inset 2px -1px 0 0 $bread-bubbles-shadow; 
+                }
+                &:after{
+                    left: 11px;
+                    top: 79px;
+                    width: 8px;
+                    height: 8px;
+                    box-shadow: inset 2px -1px 0 0 $bread-bubbles-shadow;
+                }
+            }
+
+            &--2 {
+                top: 62px;
+                left: 79px;
+                width: 12px;
+                height: 12px;
+                box-shadow: inset 4px -3px 0 0 $bread-bubbles-shadow;
+
+                &:before {
+                    top: -29px;
+                    left: -40px;
+                    width: 14px;
+                    height: 14px;
+                    box-shadow: inset 2px -1px 0 0 $bread-bubbles-shadow; 
+                }
+                &:after{
+                    left: -15px;
+                    top: -38px;
+                    width: 8px;
+                    height: 8px;
+                    box-shadow: inset 2px -1px 0 0 $bread-bubbles-shadow;
+                }
+            }
+
+            &--3 {
+                top: 62px;
+                left: 79px;
+                width: 13px;
+                height: 12px;
+                z-index: 1;
+                box-shadow: inset 4px -3px 0 0 $bread-bubbles-shadow;
+            }
+        }
+        .bread-pic {
+            position: absolute;
+            z-index: 1;
+
+            &--right {
+                transform: scaleX(-1);
+                left: 101px;
+            }
+        }
+    }
+
+    &--ball {
+        left: 327px;
+        top: 76px;
+        animation: bread-ball $animation-timing $animation-timing-function;
+
+        .bread-bubbles {
+            width: 20px;
+            height: 20px;
+            box-shadow: inset 4px -3px 0 0 $bread-bubbles-shadow;
+
+            &:before {
+                top: -12px;
+                left: 15px;
+                width: 10px;
+                height: 10px;
+                box-shadow: inset 2px -1px 0 0 $bread-bubbles-shadow; 
+            }
+            &:after{
+                left: 88px;
+                top: 7px;
+                width: 8px;
+                height: 8px;
+                box-shadow: inset 2px -1px 0 0 $bread-bubbles-shadow;
+            }
+        }
+    }
+
+    &-bubbles {
+        position: absolute;
+        background: $bread-bubbles;
+        border-radius: 100%;
+
+        &:after,
+        &:before {
+            content: '';
+            position: absolute;
+            border-radius: 100%;
+            background: inherit;
+            z-index: 1;
+        }
+    }
+    &-upper{
+        left: -14px;
+        right: -14px;
+        top: -20px;
+        height: 66px;
+        position: absolute;
+        border-radius: 42px;
+        box-shadow: -10px 0 0 0 #b65119;
+        background: $bread;
+
+        &:before {
+            content: '';
+            background: $bread;
+            position: absolute;
+            bottom: 0;
+            left: 13px;
+            right: 13px;
+            height: 10px;
+        }
+    }
+
+    &-pic-ball{
+        border: 6px solid $bread-pic;
+        width: 61px;
+        height: 60px;
+        border-radius: 100%;
+        position: absolute;
+        top: 4px;
+        left: 13px;
+        z-index: 1;
+        overflow: hidden;
+
+        &-inner {
+            border: 6px solid $bread-pic;
+            content: '';
+            width: 203px;
+            height: 203px;
+            top: -38px;
+            left: -165px;
+            border-radius: 100%;
+            position: absolute;
+        }
+        &:before {
+            content: '';
+            transform: rotate(-28deg);
+            border: 6px solid $bread-pic;
+            width: 83px;
+            height: 58px;
+            position: absolute;
+            top: -46px;
+            left: -25px;
+            border-radius: 100%;
+        }
+        &:after{
+            content: "";
+            width: 83px;
+            height: 76px;
+            top: 30px;
+            left: 2px;
+            border: 6px solid $bread-pic;
+            position: absolute;
+            border-radius: 100%;
+        }
+    }
+    &-pic-heart {
+        border: 6px solid transparent;
+        width: 33px;
+        height: 33px;
+        border-radius: 100%;
+        position: absolute;
+        top: 9px;
+        left: 14px;
+        z-index: 1;
+        border-top-color: $bread-pic;
+        border-right-color: $bread-pic;
+        transform: rotate(-81deg) skew(-11deg, 0deg);
+
+        &:after {
+            content: "";
+            width: 34px;
+            height: 6px;
+            background: $bread-pic;
+            position: absolute;
+            top: 15px;
+            left: -17px;
+            transform: rotate(-82deg);
+        }
+    }
+}
+@keyframes body {
+    0%,  
+    22.9%  {
+        transform: scaleX(1);
+    }
+    25.4% {
+        transform: scaleY(1.03);
+    }
+    27.9%,
+    46.6%  {
+        transform: scaleY(0.9);
+    }
+    48.75%,
+    49.75% {
+        transform: scaleY(0.81);
+    }
+    52% {
+        transform: scaleY(1.14);
+    }
+    55% {
+        transform: scaleY(0.88);
+    }
+    57%,
+    100% {
+        transform: scaleY(1) scaleX(1);
+    }
+}
+@keyframes body-color {
+    0%,
+    35%,
+    61.25%  {
+        background: $t-body;
+        box-shadow: 77px 0px 0 0px inset $t-body-shadow;
+    }
+    51.6% {
+        background: $t-body-dark;
+        box-shadow: 77px 0px 0 0px inset $t-body-shadow-dark;
+    }
+}
+@keyframes mouth-upper-color {
+    0%,
+    35%,
+    61.25% {
+        background: $t-body;
+        box-shadow: 0 0 1px 0 $t-body;
+    }
+    51.6% {
+        background: $t-body-dark;
+        box-shadow: 0 0 1px 0 $t-body-dark;
+    }
+}
+@keyframes pupil {
+    0%,
+    1.6% {
+        transform: scaleX(1);
+    }
+    2.5% {
+        transform: scaleX(1.4);
+    }
+    4.1%,
+    8.75% {
+        transform: scaleX(1) translateX(7px);
+    }
+    9.25% {
+        transform: scaleX(1.4) translateX(0)
+    }
+    11.25%,
+    65% {
+        transform: scaleX(1) translateX(0)
+    }
+    65.8% {
+        transform: scaleY(1.2) translateY(-6px);
+    }
+    66.6%,
+    72% {
+        transform: scaleY(1) translateY(-11px);
+    }
+    65.8%,
+    72.9% {
+        transform: scaleY(1.2) translateY(-6px);
+    }
+    75%,
+    100% {
+        transform: scaleY(1) translateX(0)
+    }
+}
+@keyframes eyes {
+    0%,
+    20.41%,
+    51.25%,
+    100% {
+        transform: scaleY(1)
+    }
+    22.5% {
+        transform: scaleY(0.8)
+    }
+}
+@keyframes face-happy {
+    22.9% {
+        opacity: 1;
+    }
+    23%,
+    51%  {
+        opacity: 0;  
+    }
+    51.51% {
+        opacity: 1;  
+        transform: scaleY(1);
+    }
+    52.08% {
+        transform: scaleY(1.4);
+    }
+    54.58% {
+        transform: scaleY(1);
+    }
+}
+@keyframes face-tense {
+    0%,
+    22.9%  {
+        opacity: 0;
+    }
+    23% {
+        opacity: 1;  
+    }
+    25.4% {
+        opacity: 1;
+        transform: scaleY(1.05);  
+    }
+    26.6% {
+        opacity: 1;
+        transform: scaleY(1);  
+    }
+    51% {
+        opacity: 1;  
+    }
+    51.51%,
+    100% {
+        opacity: 0;  
+    }
+}
+@keyframes eyes-tense {
+    0%,
+    26.6% {
+        transform: translate(0, 0);
+    }
+    27.08% {
+        transform: translate(-5px, 12px);
+    }
+    27.56%,
+    28%  {
+        transform: translate(7px, 15px);
+    }
+    28.6% {
+        transform: translate(-5px, 12px);
+    }
+    29% {
+        transform: translate(0px, 13px);
+    }
+    30.5% {
+        transform: translate(-5px, 12px);
+    }
+    31% {
+        transform: translate(-5px, 15px);
+    }
+    31.5% {
+        transform: translate(-5px, 12px);
+    }
+    32.5% {
+        transform: translate(0, 17px);
+    }
+    33% {
+        transform: translate(2px, 13px);
+    }
+    34% {
+        transform: translate(0, 0);
+    }
+    35% {
+        transform: translate(-5px, 12px);
+    }
+    36% {
+        transform: translate(-3px, 10px);
+    }
+    38% {
+        transform: translate(-5px, 12px);
+    }
+    39% {
+        transform: translate(7px, 15px);
+    }
+    40% {
+        transform: translate(-5px, 12px);
+    }
+    41% {
+        transform: translate(0px, 13px);
+    }
+    42% {
+        transform: translate(-5px, 12px);
+    }
+    43% {
+        transform: translate(7px, 15px);
+    }
+    44% {
+        transform: translate(-5px, 12px);
+    }
+    45% {
+        transform: translate(0px, 13px);
+    }
+    46% {
+        transform: translate(7px, 15px);
+    }
+    47% {
+        transform: translate(-5px, 12px);
+    }
+    48% {
+        transform: translate(7px, 15px);
+    }
+    49% {
+        transform: translate(-3px, 20px);
+    }
+    50% {
+        transform: translate(-3px, 20px);
+    }
+}
+@keyframes blush {
+    0%,
+    34%,
+    70%, 
+    100%  {
+        opacity: 0;
+    }
+    47% {
+        opacity: 1;
+    }
+}
+@keyframes shaking {
+    0%,
+    35%,
+    36.6%,
+    37.5%,
+    39%,
+    40%,
+    42%,
+    43.5%,
+    44.6%,
+    45.6%,
+    48% {
+        transform: translateX(0)
+    }
+    35.4% {
+        transform: translateX(-5px)
+    }
+    37% {
+        transform: translateX(5px)
+    }
+    39.6% {
+        transform: translateX(-5px)
+    }
+    41.5% {
+        transform: translateX(5px)
+    }
+    44% {
+        transform: translateX(-5px)
+    }
+    45% {
+        transform: translateX(5px)
+    }
+    48.5% {
+        transform: translateX(-5px)
+    }
+    49% {
+        transform: translateX(0)
+    }
+    50% {
+        transform: translateX(5px)
+    }
+    50.6% {
+        transform: translateX(0)
+    }
+
+
+    51% {
+        transform: translateX(0) 
+    }
+    
+    54% {
+        transform: translateY(-62px);
+    }
+    55% {
+        transform: translateY(-62px);
+    }
+    56.25% {
+        transform: translateY(0);
+    }
+    57.08% {
+        transform: translateY(-8px);
+    }
+    57.68% {
+        transform: translateY(-8px) rotate(-2deg);
+    }
+    58.3% {
+        transform: translateY(-3px) rotate(-3deg);
+    }
+    60% {
+        transform: translateY(0) rotate(0);
+    }
+    61.25% {
+        transform: translateY(-3px) rotate(2deg)
+    }
+    62.08% {
+        transform: translateY(-1px) rotate(1deg)
+    }
+    62.68% {
+        transform: translateY(0) rotate(0)
+    }
+    100% {
+        transform: translateY(0) rotate(0)
+    }
+
+}
+@keyframes switch {
+    0% {
+        transform: scaleY(1);
+    }
+    22.9% {
+        transform: scaleY(1);
+    }
+    25.41% {
+        transform: scaleY(1.05);
+    }
+    25.8% {
+        transform: scaleY(1.05);
+    }
+    27.91% {
+        transform: scaleY(0.9);
+    }
+    46.6% {
+        transform: scaleY(0.9);
+    }
+    48.7% {
+        transform: scaleY(0.8);
+    }
+    53.3% {
+        transform: scaleY(1.1);
+    }
+    55.41% {
+        transform: scaleY(1);
+    }
+    56.41% {
+        transform: scaleY(1.05);
+    }
+    57% {
+        transform: scaleY(1);
+    }
+    100% {
+        transform: scaleY(1);
+    }
+}
+@keyframes handler {
+    0% {
+        transform: scaleY(1) translateY(0)
+    }
+    51.6% {
+        transform: scaleY(1) translateY(0);
+    }
+    52.08% {
+        transform: scaleY(2) translateY(0);
+    }
+    52.9%{
+        transform: scaleY(2) translateY(-23px);
+    }
+    53.3%{
+        transform: scaleY(1) translateY(-64px);
+    }
+    82.9% {
+        transform: scaleY(1) translateY(-64px);
+    }
+    95.8% {
+        transform: scaleY(1) translateY(0);
+    }
+}
+@keyframes bread-ball {
+    0%, 
+    52% {
+        transform: translateY(0) scaleY(1)
+    }
+    55% {
+        transform: translateY(-161px) scaleY(1.05)
+    }
+    56.6%, 
+    57.5% {
+        transform: translateY(-235px) scaleY(0.9)
+    }
+    58.75% {
+        transform: translateY(-230px) scaleY(1)
+    }
+    65.41%,
+    81% {
+        transform: translateY(-79px) scaleY(1.3)
+    }
+    93% {
+        transform: translateY(-50px) scaleY(1)
+    }
+}
+@keyframes bread-heart {
+    0%,
+    54%, 
+    100% {
+        transform: translateY(-24px) scaleY(1)
+    }
+    57% {
+        transform: scaleY(1.2) translateY(-154px)
+    }
+    59.16%,
+    60.41% {
+        transform: scaleY(0.9) translateY(-262px)
+    }
+    68%,
+    82% {
+        transform: scaleY(1.2) translateY(-70px)
+    }
+    93% {
+        transform: scaleY(1.2) translateY(-30px)
+    }
+}
